@@ -19,8 +19,8 @@ const API_ENDPOINTS = {
  * @param {string} password - User's password
  * @returns {Promise} - Promise resolving to authentication response
  */
-async function authenticateUser(email, password) {
-  console.log(`Login attempt for user: ${email}`);
+async function getSessionToken(email, password) {
+  console.log(`Getting token for: ${email}`);
 
   try {
     const response = await axios.post(
@@ -46,9 +46,29 @@ async function authenticateUser(email, password) {
   }
 }
 
+async function getUserProfile(token) {
+  console.log(`Login attempt with token: ${token}`);
+
+  try {
+    const response = await axios.get(API_ENDPOINTS.profile, {
+      headers: {
+        ...API_CREDENTIALS.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Profile successful!");
+    return response.data;
+  } catch (error) {
+    console.error("Token error:", error.message);
+    throw error; // Re-throw to be handled by the caller
+  }
+}
+
 // Export constants and functions
 module.exports = {
   API_CREDENTIALS,
   API_ENDPOINTS,
-  authenticateUser,
+  getSessionToken,
+  getUserProfile,
 };

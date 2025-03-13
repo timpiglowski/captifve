@@ -1,7 +1,6 @@
 const express = require("express");
 const path = require("path");
-const { console } = require("inspector");
-const { authenticateUser } = require("./coapp_auth"); // Import the auth module
+const { getSessionToken, getUserProfile } = require("./coapp_auth"); // Import the auth module
 
 const PORT = 3000;
 const app = express();
@@ -20,11 +19,12 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const authData = await authenticateUser(email, password);
+    const userToken = await getSessionToken(email, password);
+    const userProfile = await getUserProfile(userToken.token);
 
     // TBC: Store token in Cookie?
 
-    res.json(authData);
+    res.json(userProfile);
 
     // HERE!
   } catch (error) {
