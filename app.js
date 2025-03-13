@@ -1,7 +1,47 @@
 const express = require("express");
-const app = express();
-const port = 3000;
+const path = require("path");
+const { console } = require("inspector");
+const { authenticateUser } = require("./coapp_auth"); // Import the auth module
 
-app.listen(port, () => {
-  console.log(`Captive portal running on port ${port}`);
+const PORT = 3000;
+const app = express();
+
+// Middleware
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+// Coapp login
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const authData = await authenticateUser(email, password);
+
+    // TBC: Store token in Cookie?
+
+    res.json(authData);
+
+    // HERE!
+  } catch (error) {
+    if (error.response) {
+      res.status(error.response.status).json({
+        error: "Authentication failed",
+        details: error.response.data,
+      });
+    } else if (error.request) {
+      res.status(503).json({ error: "Service unavailable" });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Captive portal running on port ${PORT}`);
 });
