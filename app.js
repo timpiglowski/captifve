@@ -1,9 +1,11 @@
 const express = require("express");
 const path = require("path");
-const { getSessionToken, getUserProfile } = require("./coapp_auth"); // Import the auth module
+const { getAuthToken, getUserPlan } = require("./coapp_auth"); // Import the auth module
 
 const PORT = 3000;
 const app = express();
+
+const allowedPlans = ["Team", "Resident"];
 
 // Middleware
 app.use(express.static(path.join(__dirname, "public")));
@@ -19,14 +21,10 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const userToken = await getSessionToken(email, password);
-    const userProfile = await getUserProfile(userToken.token);
+    const userToken = await getAuthToken(email, password);
+    const userPlan = await getUserPlan(userToken.token);
 
-    // TBC: Store token in Cookie?
-
-    res.json(userProfile);
-
-    // HERE!
+    res.json(userPlan);
   } catch (error) {
     if (error.response) {
       res.status(error.response.status).json({

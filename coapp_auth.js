@@ -10,7 +10,7 @@ const API_CREDENTIALS = {
 
 const API_ENDPOINTS = {
   login: "https://api.coapp.io/v1/user/loginV2",
-  profile: "https://api.coapp.io/v1/dashboard/me",
+  plan: "https://api.coapp.io/v1/me/plan",
 };
 
 /**
@@ -19,7 +19,8 @@ const API_ENDPOINTS = {
  * @param {string} password - User's password
  * @returns {Promise} - Promise resolving to authentication response
  */
-async function getSessionToken(email, password) {
+
+async function getAuthToken(email, password) {
   console.log(`Getting token for: ${email}`);
 
   try {
@@ -32,10 +33,8 @@ async function getSessionToken(email, password) {
       API_CREDENTIALS,
     );
 
-    // Extract the token from the response
     const token = response.data.token;
 
-    // Log the token to the console
     console.log("Authentication successful!");
     console.log("Token:", token);
 
@@ -46,19 +45,19 @@ async function getSessionToken(email, password) {
   }
 }
 
-async function getUserProfile(token) {
+async function getUserPlan(token) {
   console.log(`Login attempt with token: ${token}`);
 
   try {
-    const response = await axios.get(API_ENDPOINTS.profile, {
+    const response = await axios.get(API_ENDPOINTS.plan, {
       headers: {
         ...API_CREDENTIALS.headers,
         Authorization: `Bearer ${token}`,
       },
     });
 
-    console.log("Profile successful!");
-    return response.data;
+    console.log("Getting plan successful!");
+    return response.data.current.Plan.Name;
   } catch (error) {
     console.error("Token error:", error.message);
     throw error; // Re-throw to be handled by the caller
@@ -69,6 +68,6 @@ async function getUserProfile(token) {
 module.exports = {
   API_CREDENTIALS,
   API_ENDPOINTS,
-  getSessionToken,
-  getUserProfile,
+  getAuthToken,
+  getUserPlan,
 };
