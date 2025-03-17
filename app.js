@@ -35,9 +35,11 @@ app.get("/", (req, res) => {
   const clientMac = req.query.mac;
 
   if (!clientMac) {
+    logger.error("Received no MAC adress", { mac: clientMac });
     return res.status(400).send("MAC address is required");
   }
   if (!isValidMACAddress(clientMac)) {
+    logger.error("Received invalid MAC adress", { mac: clientMac });
     return res.status(400).send("Invalid MAC adress format");
   }
 });

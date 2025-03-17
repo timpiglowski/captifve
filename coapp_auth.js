@@ -1,5 +1,13 @@
 const axios = require("axios");
 
+const winston = require("winston");
+
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || "info",
+  format: winston.format.json(),
+  transports: [new winston.transports.Console()],
+});
+
 // Configuration constants
 const API_CREDENTIALS = {
   headers: {
@@ -14,7 +22,7 @@ const API_ENDPOINTS = {
 };
 
 async function getAuthToken(email, password) {
-  console.log(`coapp_auth | Getting token for: ${email}`);
+  logger.info("Getting token", { email: email });
 
   try {
     const response = await axios.post(
@@ -28,18 +36,20 @@ async function getAuthToken(email, password) {
 
     const token = response.data.token;
 
-    console.log("Authentication successful!");
-    console.log("Token:", token);
+    logger.info("Coapp authentication sucesfull", { email: email });
 
     return response.data;
   } catch (error) {
-    console.error("Login error:", error.message);
+    logger.error(
+      "An error occured while trying to authenticate the user with Coapp",
+      error.message,
+    );
     throw error; // Re-throw to be handled by the caller
   }
 }
 
 async function getUserPlan(token) {
-  console.log(`Login attempt with token: ${token}`);
+  logger.info("Getting profile with token", { token: token });
 
   try {
     const response = await axios.get(API_ENDPOINTS.plan, {
@@ -49,10 +59,13 @@ async function getUserPlan(token) {
       },
     });
 
-    console.log("Getting plan successful!");
+    logger.info("Profile received sucessfully");
     return response.data.current.Plan.Name;
   } catch (error) {
-    console.error("Token error:", error.message);
+    logger.error(
+      "An error occured while trying to get the profile",
+      error.message,
+    );
     throw error; // Re-throw to be handled by the caller
   }
 }
