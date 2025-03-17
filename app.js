@@ -21,7 +21,7 @@ let allowedPlans = "";
 try {
   const fileContents = fs.readFileSync("config.yaml", "utf8");
   const data = yaml.load(fileContents);
-  allowedPlans = data.allowed_plans;
+  allowedPlans = Array.from(data.allowed_plans);
   logger.info("Retrieved allowed plans.", { plans: allowedPlans });
 } catch (error) {
   logger.error("Failed to load configuration", { error: error.message });
@@ -68,7 +68,12 @@ app.post("/login", async (req, res) => {
 
     logger.info("Received plan", { plan: userPlan });
 
-    res.redirect("/success");
+    if (allowedPlans.includes(userPlan)) {
+      res.redirect("/success");
+    } else {
+      logger.warn("Blocked unauthorized user", { plan: userPlan });
+      res.status(401).send("Unauthorized");
+    }
   } catch (error) {
     if (error.response) {
       res.status(error.response.status).json({
