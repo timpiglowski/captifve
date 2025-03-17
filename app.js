@@ -1,5 +1,7 @@
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
+const yaml = require("js-yaml");
 const { getAuthToken, getUserPlan } = require("./coapp_auth"); // Import the auth module
 
 const winston = require("winston");
@@ -13,14 +15,11 @@ const logger = winston.createLogger({
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-const allowedPlans = ["Team", "Resident"];
+let allowedPlans = "";
 
 // Validation Functions
 function isValidMACAddress(mac) {
-  // Regular expression for standard MAC address format
-  // Accepts formats like 01:23:45:67:89:AB, 01-23-45-67-89-AB
   const regex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-
   return regex.test(mac);
 }
 
@@ -44,6 +43,10 @@ app.get("/", (req, res) => {
   }
 });
 
+app.get("/success", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "success.html"));
+});
+
 // Coapp login
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -52,7 +55,19 @@ app.post("/login", async (req, res) => {
     const userToken = await getAuthToken(email, password);
     const userPlan = await getUserPlan(userToken.token);
 
-    res.json(userPlan);
+    logger.info("Received plan", { plan: userPlan });
+
+    try {
+      const fileContents = fs.readFileSync("config.yaml", "utf8");
+      const data = yaml.load(fileContents);
+
+      allowedPlans = data.allowed_plans;
+      logger.info("Retrieved allowed plans.", { plans: allowedPlans });
+    } catch (error) {
+      console.log(error);
+    }
+
+    res.redirect("/success");
   } catch (error) {
     if (error.response) {
       res.status(error.response.status).json({

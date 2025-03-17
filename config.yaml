@@ -1,0 +1,38 @@
+allowed_plans:
+  - Team
+  - Resident
+  - Resident 129
+
+disallowed_plans:
+  - Community
+  - undefined
+  - Community 11 Euro
+  - Studi + Azubi
+  - +1 for Family+Friends
+  - Mentor*innen Accelerator
+  - Community Maker Plus
+  - Accelerator Resident
+  - Office
+  - Team-Office Linden Member
+  - Crew Alumni
+  - Hannovate talents
+  - Maker Pro
+  - Maker Pro Flat
+  - Fix Desk Office Linden
+  - Accelerator Community
+  - Resident Fix Desk
+  - Resident Partner
+  - Community Partner
+  - Resident Corporate User
+  - Resident 99
+  - StartUp/Teams/Corporate
+  - Meisterschüler
+  - One Coworking
+  - Resident gesponsert
+  - 4er Team-Office Linden
+  - 6er Team-Office Linden
+  - IT macht Schule - Projekt
+  - Resident Corporate Account
+  - Mentor
+  - Tesla Tarif
+  - 24 Monate Resident Tarif

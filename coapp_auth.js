@@ -22,7 +22,7 @@ const API_ENDPOINTS = {
 };
 
 async function getAuthToken(email, password) {
-  logger.info("Getting token", { email: email });
+  logger.info("Getting token...", { email: email });
 
   try {
     const response = await axios.post(
@@ -36,7 +36,7 @@ async function getAuthToken(email, password) {
 
     const token = response.data.token;
 
-    logger.info("Coapp authentication sucesfull", { email: email });
+    logger.info("Coapp authentication sucesful!", { email: email });
 
     return response.data;
   } catch (error) {
@@ -49,7 +49,7 @@ async function getAuthToken(email, password) {
 }
 
 async function getUserPlan(token) {
-  logger.info("Getting profile with token", { token: token });
+  logger.info("Getting profile with token...", { token: token });
 
   try {
     const response = await axios.get(API_ENDPOINTS.plan, {
@@ -59,7 +59,7 @@ async function getUserPlan(token) {
       },
     });
 
-    logger.info("Profile received sucessfully");
+    logger.info("Receiving profile sucesful!");
     return response.data.current.Plan.Name;
   } catch (error) {
     logger.error(
