@@ -1,4 +1,6 @@
 const axios = require("axios");
+const winston = require("winston");
+const logPrefix = "coapp_auth";
 
 // Configuration constants
 const API_CREDENTIALS = {
@@ -13,15 +15,8 @@ const API_ENDPOINTS = {
   plan: "https://api.coapp.io/v1/me/plan",
 };
 
-/**
- * Authenticates a user with Coapp API
- * @param {string} email - User's email
- * @param {string} password - User's password
- * @returns {Promise} - Promise resolving to authentication response
- */
-
 async function getAuthToken(email, password) {
-  console.log(`Getting token for: ${email}`);
+  console.log(`coapp_auth | Getting token for: ${email}`);
 
   try {
     const response = await axios.post(

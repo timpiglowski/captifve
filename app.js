@@ -7,6 +7,15 @@ const app = express();
 
 const allowedPlans = ["Team", "Resident"];
 
+// Validation Functions
+function isValidMACAddress(mac) {
+  // Regular expression for standard MAC address format
+  // Accepts formats like 01:23:45:67:89:AB, 01-23-45-67-89-AB
+  const regex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+
+  return regex.test(mac);
+}
+
 // Middleware
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
@@ -14,6 +23,15 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
+
+  const clientMac = req.query.mac;
+
+  if (!clientMac) {
+    return res.status(400).send("MAC address is required");
+  }
+  if (!isValidMACAddress(clientMac)) {
+    return res.status(400).send("Invalid MAC adress format");
+  }
 });
 
 // Coapp login
