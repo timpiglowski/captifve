@@ -2,7 +2,15 @@ const express = require("express");
 const path = require("path");
 const { getAuthToken, getUserPlan } = require("./coapp_auth"); // Import the auth module
 
-const PORT = 3000;
+const winston = require("winston");
+
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || "info",
+  format: winston.format.json(),
+  transports: [new winston.transports.Console()],
+});
+
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 const allowedPlans = ["Team", "Resident"];

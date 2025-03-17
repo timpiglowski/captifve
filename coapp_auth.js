@@ -1,6 +1,4 @@
 const axios = require("axios");
-const winston = require("winston");
-const logPrefix = "coapp_auth";
 
 // Configuration constants
 const API_CREDENTIALS = {
