@@ -1,40 +1,137 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, minimum-scale=1" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Hafven Captive Portal</title>
         <style>
-            body {
+            /* Root Variables for Easy Customization */
+            :root {
+                --primary-color: #007bff;
+                --background-color: #f9f9f9;
+                --text-color: #333;
+                --label-color: #666;
+                --input-border-color: #ddd;
+                --container-bg-color: #fff;
+                --border-radius: 12px;
+            }
+
+            /* Reset and Body Styles */
+            * {
                 margin: 0;
                 padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                height: 100vh;
+                min-height: 100vh;
                 font-family: Arial, sans-serif;
+                background-color: var(--background-color);
+                color: var(--text-color);
             }
 
+            /* Login Container Styles */
             .login-container {
-                font-size: 12pt;
+                background-color: var(--container-bg-color);
+                padding: 20px;
+                border-radius: var(--border-radius);
+                width: 100%;
+                max-width: 360px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            label {
+                display: block;
+                font-size: 0.9rem;
+                color: var(--label-color);
+                margin-bottom: 0.5rem;
+            }
+
+            input[type="email"],
+            input[type="password"] {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 1rem;
+                border-radius: var(--border-radius);
+                border: 1px solid var(--input-border-color);
+                font-size: 1rem;
+            }
+
+            input[type="email"]:focus,
+            input[type="password"]:focus {
+                outline: none;
+                border-color: var(--primary-color);
+            }
+
+            button,
+            .button {
+                display: block;
+                width: 100%;
+                padding: 10px;
+                border-radius: var(--border-radius);
+                border: none;
+                background-color: var(--primary-color);
+                color: white;
+                font-size: 1rem;
+                cursor: pointer;
                 text-align: center;
+            }
+
+            button:hover,
+            .button:hover {
+                background-color: #0056b3; /* Slightly darker blue for hover effect */
+            }
+
+            hr {
+                border-top: 1px solid var(--input-border-color);
+                margin: 20px 0;
+            }
+
+            .button {
+                text-decoration: none; /* Remove underline for links styled as buttons */
             }
         </style>
     </head>
     <body>
         <div class="login-container">
-            <h1>WiFi Login</h1>
+            <h1>Member</h1>
+
+            <!-- Login Form -->
             <form action="/login" method="post">
-                <div>
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" />
-                </div>
-                <div>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" />
-                </div>
+                <label for="email">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                />
+
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                />
+
                 <button type="submit">Login</button>
             </form>
+
+            <hr />
+
+            <!-- Guest Section -->
+            <h1>Guest Access</h1>
+            <a href="https://google.com" class="button">Enter Code</a>
         </div>
     </body>
 </html>
