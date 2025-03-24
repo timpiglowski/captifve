@@ -2,8 +2,8 @@
 node_modules/
 jspm_packages/
 
-# Environment variables
-.env
+# Never share
+secrets.yaml
 
 # Logs
 logs

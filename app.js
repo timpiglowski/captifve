@@ -15,8 +15,8 @@ const logger = winston.createLogger({
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-// Allowed plans
-let allowedPlans = "";
+// Allowed plans from config
+let allowedPlans;
 
 try {
   const fileContents = fs.readFileSync("config.yaml", "utf8");

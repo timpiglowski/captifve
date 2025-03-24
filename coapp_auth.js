@@ -1,6 +1,8 @@
 const axios = require("axios");
 
 const winston = require("winston");
+const fs = require("fs");
+const yaml = require("js-yaml");
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || "info",
@@ -8,11 +10,25 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()],
 });
 
+let xAppId, xAppSecret;
+
+try {
+  const fileContents = fs.readFileSync("secrets.yaml", "utf8");
+  const data = yaml.load(fileContents);
+  xAppId = data.coapp_credentials.x_app_id;
+  xAppSecret = data.coapp_credentials.x_app_secret;
+
+  logger.info("Retrieved API credentials.");
+} catch (error) {
+  logger.error("Failed to load configuration", { error: error.message });
+  process.exit(1); // Exit if critical configuration is missing
+}
+
 // Configuration constants
 const API_CREDENTIALS = {
   headers: {
-    "X-APP-ID": "***REMOVED***",
-    "X-APP-SECRET": "***REMOVED***",
+    "x-app-id": xAppId,
+    "x-app-secret": xAppSecret,
   },
 };
 
@@ -36,7 +52,7 @@ async function getAuthToken(email, password) {
 
     const token = response.data.token;
 
-    logger.info("Coapp authentication sucesful!", { email: email });
+    logger.info("Coapp authentication succesful!", { email: email });
 
     return response.data;
   } catch (error) {
@@ -72,8 +88,6 @@ async function getUserPlan(token) {
 
 // Export constants and functions
 module.exports = {
-  API_CREDENTIALS,
-  API_ENDPOINTS,
   getAuthToken,
   getUserPlan,
 };

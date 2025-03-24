@@ -2,7 +2,6 @@ allowed_plans:
   - Team
   - Resident
   - Resident 129
-
 disallowed_plans:
   - Community
   - undefined
