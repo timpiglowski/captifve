@@ -41,15 +41,31 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
+  // TODO: This needs restructuring
+  // TODO: Implement location checking
+
+  // Parse CLIENT MAC
   const clientMac = req.query.mac;
 
   if (!clientMac) {
-    logger.error("Received no MAC address", { mac: clientMac });
-    return res.status(400).send("MAC address is required");
+    logger.error("Received no CLIENT MAC address", { mac: clientMac });
+    return res.status(400).send("CLIENT MAC address is required");
   }
   if (!isValidMACAddress(clientMac)) {
-    logger.error("Received invalid MAC address", { mac: clientMac });
-    return res.status(400).send("Invalid MAC address format");
+    logger.error("Received invalid CLIENT MAC address", { mac: clientMac });
+    return res.status(400).send("Invalid CLIENT MAC address format");
+  }
+
+  // Parse AP MAC
+  const apMAC = req.query.ap;
+
+  if (!apMAC) {
+    logger.error("Received no AP MAC address", { mac: clientMac });
+    return res.status(400).send("AP MAC address is required");
+  }
+  if (!isValidMACAddress(apMAC)) {
+    logger.error("Received invalid AP MAC address", { mac: clientMac });
+    return res.status(400).send("Invalid AP MAC address format");
   }
 
   res.sendFile(path.join(__dirname, "public", "login.html"));
@@ -59,10 +75,11 @@ app.get("/success", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "success.html"));
 });
 
-// Coapp login
+// Membership Login
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
+  // CoApp Login
   try {
     const userToken = await getAuthToken(email, password);
     const userPlan = await getUserPlan(userToken.token);
@@ -70,6 +87,8 @@ app.post("/login", async (req, res) => {
     logger.info("Received plan", { plan: userPlan });
 
     if (allowedPlans.includes(userPlan)) {
+      // Authorize client in UniFi
+      // await authorizeClient(clientMac, 60, null); // THIS HERE
       res.redirect("/success");
     } else {
       logger.warn("Blocked unauthorized user", { plan: userPlan });
@@ -95,6 +114,7 @@ app.listen(PORT, () => {
 });
 
 // Connect to UniFi controller
+/*
 connectToController()
   .then(() => {
     logger.info("Connected to UniFi controller");
@@ -105,3 +125,4 @@ connectToController()
     });
     process.exit(1);
   });
+*/
