@@ -20,7 +20,7 @@ try {
 
   logger.info("Retrieved API credentials.");
 } catch (error) {
-  logger.error("Failed to load configuration", { error: error.message });
+  logger.error("Failed to load secrets!", { error: error.message });
   process.exit(1); // Exit if critical configuration is missing
 }
 
