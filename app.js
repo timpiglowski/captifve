@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const yaml = require("js-yaml");
 const { getAuthToken, getUserPlan } = require("./coapp_auth"); // Import the auth module
+const { connectToController, authorizeClient } = require("./unifi"); // Import custom unifi module
 
 const winston = require("winston");
 
@@ -90,5 +91,17 @@ app.post("/login", async (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Captive portal running on port ${PORT}`);
+  logger.info(`Captive portal running on port ${PORT}`);
 });
+
+// Connect to UniFi controller
+connectToController()
+  .then(() => {
+    logger.info("Connected to UniFi controller");
+  })
+  .catch((error) => {
+    logger.error("Failed to connect to UniFi controller", {
+      error: error.message,
+    });
+    process.exit(1);
+  });

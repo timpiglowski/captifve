@@ -23,24 +23,56 @@ function loadYamlFile(filename) {
 const configData = loadYamlFile("config.yaml");
 const secretsData = loadYamlFile("secrets.yaml");
 
-const { ip: controller_ip, port: controller_port } =
-  configData.unifi_controller;
-const { username: controller_username, password: controller_password } =
-  secretsData.unifi_controller;
-
-// Connect to UniFi Controller
+// Create UniFi controller instance
 const controller = new unifi.Controller({
-  controller_ip,
-  controller_port,
+  hostname: configData.unifi_controller.ip,
+  port: configData.unifi_controller.port,
   sslverify: false,
 });
 
-controller.login(controller_username, controller_password, function (err) {
-  if (err) {
-    logger.error("Failed to connect to UniFi controller!", {
-      error: err.message,
+let isConnected = false;
+
+// Connect to UniFi controller
+async function connectToController() {
+  try {
+    await new Promise((resolve, reject) => {
+      controller.login(
+        secretsData.unifi_controller.username,
+        secretsData.unifi_controller.password,
+        (err) => (err ? reject(err) : resolve()),
+      );
     });
-    return;
+
+    isConnected = true;
+    logger.info("Connected to UniFi Controller");
+    return true;
+  } catch (error) {
+    isConnected = false;
+    logger.error(`Connection failed: ${error.message}`);
+    // Rethrow the error instead of returning false
+    throw error;
   }
-  logger.info("Connected to UniFi Controller successfully.");
-});
+}
+
+// Authorize a client
+async function authorizeClient(clientMac, minutes = 60, apMac = null) {
+  if (!isConnected) {
+    throw new Error("Not connected to UniFi controller");
+  }
+
+  try {
+    await new Promise((resolve, reject) => {
+      controller.authorizeGuest(clientMac, minutes, apMac, (err) =>
+        err ? reject(err) : resolve(),
+      );
+    });
+
+    logger.info(`Client ${clientMac} authorized successfully`);
+    return true;
+  } catch (error) {
+    logger.error(`Failed to authorize client ${clientMac}: ${error.message}`);
+    throw error;
+  }
+}
+
+module.exports = { connectToController, authorizeClient };
