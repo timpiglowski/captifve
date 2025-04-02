@@ -57,13 +57,13 @@ app.get("/", (req, res) => {
   }
 
   // Parse AP MAC
-  const apMAC = req.query.ap;
+  const apMac = req.query.ap;
 
-  if (!apMAC) {
+  if (!apMac) {
     logger.error("Received no AP MAC address", { mac: clientMac });
     return res.status(400).send("AP MAC address is required");
   }
-  if (!isValidMACAddress(apMAC)) {
+  if (!isValidMACAddress(apMac)) {
     logger.error("Received invalid AP MAC address", { mac: clientMac });
     return res.status(400).send("Invalid AP MAC address format");
   }
@@ -88,8 +88,13 @@ app.post("/login", async (req, res) => {
 
     if (allowedPlans.includes(userPlan)) {
       // Authorize client in UniFi
-      // await authorizeClient(clientMac, 60, null); // THIS HERE
-      res.redirect("/success");
+      try {
+        await authorizeClient(clientMac, 60, apMac);
+        res.redirect("/success");
+      } catch (error) {
+        logger.error("Couldn't authenticate client!");
+        res.status(500).json({ error: "Internal server error" });
+      }
     } else {
       logger.warn("Blocked unauthorized user", { plan: userPlan });
       res.status(401).send("Unauthorized");
@@ -114,7 +119,7 @@ app.listen(PORT, () => {
 });
 
 // Connect to UniFi controller
-/*
+
 connectToController()
   .then(() => {
     logger.info("Connected to UniFi controller");
@@ -125,4 +130,3 @@ connectToController()
     });
     process.exit(1);
   });
-*/

@@ -1,2 +1,41 @@
 # Captifve
 Captifve is a custom-built captive portal solution developed for [Hafven GmbH & Co KG](https://www.hafven.de). Users can access the wifi with their user account or vouchers from the café.
+
+## Diagrams
+### Server startup
+```mermaid
+flowchart TD
+    n1["Load configuation and secrets"] --> n2["Start server"]
+    n2 --> n3["Connect to UniFi Controller"]
+    n3 --> n4["Captive Portal Ready"]
+    n1 -- Configuration not found --> n5["Crash"]
+    n3 -- Connection not possible --> n5
+    n1@{ shape: proc}
+    n2@{ shape: proc}
+    n3@{ shape: proc}
+    n4@{ shape: terminal}
+    n5@{ shape: terminal}
+```
+
+### Login flowchart
+```mermaid
+flowchart TD
+ subgraph s1["coapp_auth.js"]
+        n6["Get user token from CoApp"]
+        n7["Get membership plan using token"]
+  end
+ subgraph s2["unifi.js"]
+        n9["Whitelist client in UniFi Controller"]
+  end
+    n3["Wifi Login"] -- UniFi Controller passes clientMAC, apMAC --> n4["Captive Portal"]
+    n4 --> n5["Login"]
+    n5 -- Membership --> n6
+    n6 --> n7
+    n7 --> n8["Check if plan has access"]
+    n8 --> n9
+    n9 --> n11["Success Page"]
+    n5 -- Café --> n12["Forward to UniFi Voucher Page"]
+    n3@{ shape: event}
+    n5@{ shape: decision}
+    n11@{ shape: terminal}
+```
