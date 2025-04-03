@@ -1,32 +1,10 @@
-const winston = require("winston");
-const fs = require("fs");
-const yaml = require("js-yaml");
 const unifi = require("node-unifi");
-
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || "info",
-  format: winston.format.json(),
-  transports: [new winston.transports.Console()],
-});
-
-// Function to load YAML file
-function loadYamlFile(filename) {
-  try {
-    return yaml.load(fs.readFileSync(filename, "utf8"));
-  } catch (error) {
-    logger.error(`Failed to load ${filename}`, { error: error.message });
-    process.exit(1);
-  }
-}
-
-// Load configuration files
-const configData = loadYamlFile("config.yaml");
-const secretsData = loadYamlFile("secrets.yaml");
+const { config, secrets, logger } = require("./config");
 
 // Create UniFi controller instance
 const controller = new unifi.Controller({
-  hostname: configData.unifi_controller.ip,
-  port: configData.unifi_controller.port,
+  hostname: config.unifi_controller.ip,
+  port: config.unifi_controller.port,
   sslverify: false,
 });
 
@@ -37,12 +15,11 @@ async function connectToController() {
   try {
     await new Promise((resolve, reject) => {
       controller.login(
-        secretsData.unifi_controller.username,
-        secretsData.unifi_controller.password,
+        secrets.unifi_controller.username,
+        secrets.unifi_controller.password,
         (err) => (err ? reject(err) : resolve()),
       );
     });
-
     isConnected = true;
     logger.info("Connected to UniFi Controller");
     return true;
@@ -66,7 +43,6 @@ async function authorizeClient(clientMac, minutes = 60, apMac = null) {
         err ? reject(err) : resolve(),
       );
     });
-
     logger.info(`Client ${clientMac} authorized successfully`);
     return true;
   } catch (error) {

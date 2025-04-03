@@ -1,6 +1,14 @@
 # Captifve
 Captifve is a custom-built captive portal solution developed for [Hafven GmbH & Co KG](https://www.hafven.de). Users can access the wifi with their user account or vouchers from the café.
 
+## What the files decision
+- `app.js`:The main file. All the logic bundling together the subprocesses is located in this file.
+- `config.js`: Logging, Loading the `config.yaml` and `secrets.yaml`
+- `coapp_auth.js`: Authentication with CoApp per Users
+- `unifi.js`: Whitelisting client in UniFi Controller
+- `config.yaml`: Configuration file (allowed membership plans, ports, etc.)
+- `secrets.yaml`: Secrets file (passwords, etc.)
+
 ## Diagrams
 ### Server startup
 ```mermaid
