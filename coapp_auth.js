@@ -15,24 +15,22 @@ const API_ENDPOINTS = {
 };
 
 async function getAuthToken(email, password) {
-  logger.info("Getting token...", { email: email });
+  logger.info("Authenticating user with Coapp", { email });
   try {
     const response = await axios.post(
       API_ENDPOINTS.login,
-      {
-        email,
-        password,
-      },
+      { email, password },
       API_CREDENTIALS,
     );
-    const token = response.data.token;
-    logger.info("Coapp authentication successful!", { email: email });
+    logger.info("Coapp authentication successful", { email });
     return response.data;
   } catch (error) {
-    logger.error(
-      "An error occurred while trying to authenticate the user with Coapp",
-      error.message,
-    );
+    const statusCode = error.response?.status || "unknown";
+    logger.error("Coapp authentication failed", {
+      email,
+      statusCode,
+      errorMessage: error.message,
+    });
     throw error;
   }
 }

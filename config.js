@@ -12,11 +12,13 @@ function loadConfig() {
   try {
     const config = yaml.load(fs.readFileSync("config.yaml", "utf8"));
     const secrets = yaml.load(fs.readFileSync("secrets.yaml", "utf8"));
-
     return { config, secrets, logger };
   } catch (error) {
-    console.error("Failed to load configuration", error);
-    process.exit(1);
+    logger.error("Failed to load configuration files", {
+      error: error.message,
+      stack: error.stack,
+    });
+    throw new Error(`Configuration loading failed: ${error.message}`);
   }
 }
 

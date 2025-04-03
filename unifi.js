@@ -20,13 +20,13 @@ async function connectToController() {
         (err) => (err ? reject(err) : resolve()),
       );
     });
+
     isConnected = true;
     logger.info("Connected to UniFi Controller");
     return true;
   } catch (error) {
     isConnected = false;
-    logger.error(`Connection failed: ${error.message}`);
-    // Rethrow the error instead of returning false
+    logger.error(`Connection to UniFi controller failed: ${error.message}`);
     throw error;
   }
 }
@@ -34,6 +34,7 @@ async function connectToController() {
 // Authorize a client
 async function authorizeClient(clientMac, minutes = 60, apMac = null) {
   if (!isConnected) {
+    logger.error("Cannot authorize client: Not connected to UniFi controller");
     throw new Error("Not connected to UniFi controller");
   }
 
@@ -43,6 +44,7 @@ async function authorizeClient(clientMac, minutes = 60, apMac = null) {
         err ? reject(err) : resolve(),
       );
     });
+
     logger.info(`Client ${clientMac} authorized successfully`);
     return true;
   } catch (error) {

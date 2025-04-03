@@ -4,17 +4,19 @@ const { config, secrets, logger } = require("./config");
 const { getAuthToken, getUserPlan } = require("./coapp_auth");
 const { connectToController, authorizeClient } = require("./unifi");
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 const app = express();
 
 // Get allowed plans from the loaded config
 const allowedPlans = Array.from(config.allowed_plans);
 logger.info("Retrieved allowed plans.", { plans: allowedPlans });
 
-// Validation Functions
+// Validation function
+// Define Regex outside of function for better performance
+const MAC_REGEX = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+
 function isValidMACAddress(mac) {
-  const regex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-  return regex.test(mac);
+  return MAC_REGEX.test(mac);
 }
 
 // Middleware
@@ -23,28 +25,31 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  // Parse CLIENT MAC
-  const clientMac = req.query.mac;
-  if (!clientMac) {
-    logger.error("Received no CLIENT MAC address", { mac: clientMac });
-    return res.status(400).send("CLIENT MAC address is required");
-  }
+  // Helper function to validate MAC addresses
+  const validateMac = (type, value) => {
+    if (!value) {
+      logger.error(`Received no ${type} MAC address`, { mac: req.query.mac });
+      res.status(400).send(`${type} MAC address is required`);
+      return false;
+    }
 
-  if (!isValidMACAddress(clientMac)) {
-    logger.error("Received invalid CLIENT MAC address", { mac: clientMac });
-    return res.status(400).send("Invalid CLIENT MAC address format");
-  }
+    if (!isValidMACAddress(value)) {
+      logger.error(`Received invalid ${type} MAC address`, {
+        mac: req.query.mac,
+      });
+      res.status(400).send(`Invalid ${type} MAC address format`);
+      return false;
+    }
 
-  // Parse AP MAC
-  const apMac = req.query.ap;
-  if (!apMac) {
-    logger.error("Received no AP MAC address", { mac: clientMac });
-    return res.status(400).send("AP MAC address is required");
-  }
+    return true;
+  };
 
-  if (!isValidMACAddress(apMac)) {
-    logger.error("Received invalid AP MAC address", { mac: clientMac });
-    return res.status(400).send("Invalid AP MAC address format");
+  // Check both MAC addresses
+  if (
+    !validateMac("CLIENT", req.query.mac) ||
+    !validateMac("AP", req.query.ap)
+  ) {
+    return;
   }
 
   res.sendFile(path.join(__dirname, "public", "login.html"));
